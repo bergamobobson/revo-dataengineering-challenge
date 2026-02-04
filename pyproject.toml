@@ -1,0 +1,39 @@
+[project]
+name = "odin-mob"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=3.0.0",
+    "pandera>=0.29.0",
+    "psycopg[binary]>=3.3.2",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.2.1",
+    "sqlalchemy>=2.0.46",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.2",           
+]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (multiple components)",
+    "parsing: Parse the metadata",
+    "reader: Read the data source",
+    "validator: Validate the dimensions and the data",
+    "transformer: Tranform dimensions and data",
+    "loader: Database loader tests",
+    "happy_path: Tests for expected successful behavior",
+    "error_handling: Tests for error cases",
+    "edge_case: Tests for boundary conditions",
+]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]

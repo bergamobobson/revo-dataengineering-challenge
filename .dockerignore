@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+
+# Environment variables (secrets)
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Tests (pas besoin en production)
+test/
+tests/
+
+# Documentation
+*.md
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker artifacts 
+*.tar
+docker-compose*.yml
+
+# uv cache 
+.uv_cache/
+
+# Mac
+../.DS_Store

@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cbs-mobility-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DATABASE}
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      # Initialisation at start up (RUN-ONCE at first docker-compose up)
+      - ./sql/dim_tables.sql:/docker-entrypoint-initdb.d/01_dim_tables.sql:ro
+      - ./sql/fact_table.sql:/docker-entrypoint-initdb.d/02_fact_table.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USERNAME} -d ${DATABASE}"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  etl:
+    build:
+      context: .
+    image: odin-etl-revo:v1.0.0
+    container_name: odin-etl
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      PORT: ${PORT}
+      DATABASE: ${DATABASE}
+      SCHEMA: ${SCHEMA}
+      USERNAME: ${USERNAME}
+      PASSWORD: ${PASSWORD}
+
+      # Source files
+      METADATA_FILE_NAME: ${METADATA_FILE_NAME}
+      DATA_FILE_NAME: ${DATA_FILE_NAME}
+      CSV_SEPARATOR: ${CSV_SEPARATOR}
+
+      # Optionnel
+      DISABLE_PANDERA_IMPORT_WARNING: "True"
+
+  task3:
+    image: postgres:16-alpine
+    container_name: odin-task3
+    depends_on:
+      db:
+        condition: service_healthy
+      etl:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      PGPASSWORD: ${PASSWORD}
+    volumes:
+      - ./sql/tasks:/sql/tasks:ro
+    entrypoint: ["/bin/sh", "-lc"]
+    command: ["tail -f /dev/null"]
